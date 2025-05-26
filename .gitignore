@@ -1,0 +1,44 @@
+# ---------------------------------------
+# Archivos de sistema / temporales
+.DS_Store
+.atom/
+.history
+.svn/
+*.log
+*.pyc
+*.class
+*.swp
+*.tmp
+
+# ---------------------------------------
+# IDEs y herramientas
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# ---------------------------------------
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+build/
+.pub-cache/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+android/.gradle/
+android/local.properties
+
+# ---------------------------------------
+# Archivos de build por plataforma
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ---------------------------------------
+# Archivos de mapa de símbolos
+app.*.symbols
+app.*.map.json
