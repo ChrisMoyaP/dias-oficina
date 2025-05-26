@@ -1,46 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../data/db_helper.dart';
 import 'pantalla_generador.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../screens/pantalla_bienvenida.dart';
+import 'pantalla_bienvenida.dart';
 
 class PantallaMeses extends StatefulWidget {
   final String nombre;
 
-  PantallaMeses({required this.nombre});
+  const PantallaMeses({required this.nombre, super.key});
 
   @override
-  _PantallaMesesState createState() => _PantallaMesesState();
+  State<PantallaMeses> createState() => _PantallaMesesState();
 }
 
 class _PantallaMesesState extends State<PantallaMeses> {
   final List<String> meses = [
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre'
+    'Enero', 'Febrero', 'Marzo', 'Abril',
+    'Mayo', 'Junio', 'Julio', 'Agosto',
+    'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
   ];
 
-  Set<String> mesesConfirmados = {};
+  Set<String> mesesConDatos = {};
 
   @override
   void initState() {
     super.initState();
-    cargarMesesConfirmados();
+    cargarMesesConDatos();
   }
 
-  Future<void> cargarMesesConfirmados() async {
+  Future<void> cargarMesesConDatos() async {
     final resultado = await obtenerMesesConDatos(widget.nombre, 2025);
     setState(() {
-      mesesConfirmados = resultado;
+      mesesConDatos = resultado;
     });
   }
 
@@ -52,9 +43,10 @@ class _PantallaMesesState extends State<PantallaMeses> {
       whereArgs: [usuario, anio],
     );
 
+    // Asegura que sean strings tipo '01', '02', etc.
     return resultado
-        .map((row) => row['mes'] as String)
-        .toSet(); // meses como '01', '02', etc.
+        .map((row) => row['mes'].toString().padLeft(2, '0'))
+        .toSet();
   }
 
   @override
@@ -64,7 +56,7 @@ class _PantallaMesesState extends State<PantallaMeses> {
         title: Text('Hola ${widget.nombre} 👋'),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
@@ -86,15 +78,11 @@ class _PantallaMesesState extends State<PantallaMeses> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           children: List.generate(12, (index) {
-            final claveMes = (index + 1).toString().padLeft(2, '0');
-            final mesConfirmado = mesesConfirmados.contains(claveMes);
+            final numeroMes = (index + 1).toString().padLeft(2, '0');
+            final tieneDatos = mesesConDatos.contains(numeroMes);
 
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: mesConfirmado ? Colors.green : null,
-                padding: EdgeInsets.all(20),
-              ),
-              onPressed: () async {
+            return GestureDetector(
+              onTap: () async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -105,12 +93,44 @@ class _PantallaMesesState extends State<PantallaMeses> {
                     ),
                   ),
                 );
-                // Al volver de la pantalla de generación, recarga el estado
-                cargarMesesConfirmados();
+
+                // Recargar estados luego de volver
+                cargarMesesConDatos();
               },
-              child: Text(
-                meses[index],
-                style: TextStyle(fontSize: 18),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: tieneDatos ? Colors.green.shade400 : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: const Offset(2, 2),
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.calendar_month,
+                      size: 36,
+                      color: tieneDatos ? Colors.white : Colors.indigo,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      meses[index],
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: tieneDatos ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }),

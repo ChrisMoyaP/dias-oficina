@@ -29,6 +29,8 @@ class _PantallaGeneradorState extends State<PantallaGenerador> {
   @override
   void initState() {
     super.initState();
+    diasConfirmados = [];
+    diasPreseleccionados = [];
     cargarDiasDesdeBD();
   }
 
@@ -98,13 +100,11 @@ class _PantallaGeneradorState extends State<PantallaGenerador> {
   }
 
   Future<Map<String, int>> obtenerDiasConfirmadosGlobalPorSemana() async {
-    final db = await DBHelper.getDatabase();
-    final resultado = await db.query('dias_confirmados');
+    final dias = await DBHelper.obtenerTodosLosDiasPorUsuario(widget.nombre);
 
     Map<String, int> conteoPorSemana = {};
 
-    for (var fila in resultado) {
-      final fecha = DateTime.parse(fila['fecha'] as String);
+    for (var fecha in dias) {
       final lunesSemana = fecha.subtract(Duration(days: fecha.weekday - 1));
       final claveSemana = '${lunesSemana.year}-${lunesSemana.month}-${lunesSemana.day}';
 

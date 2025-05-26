@@ -85,4 +85,21 @@ class DBHelper {
       whereArgs: [usuario, mes.toString().padLeft(2, '0'), anio],
     );
   }
+
+  /// Retorna todos los días confirmados para un usuario (cualquier mes/año)
+  static Future<List<DateTime>> obtenerTodosLosDiasPorUsuario(String usuario) async {
+    final db = await getDatabase();
+
+    final resultado = await db.query(
+      'dias_confirmados',
+      where: 'usuario = ?',
+      whereArgs: [usuario],
+    );
+
+    return resultado
+        .map((fila) => DateTime.parse(fila['fecha'] as String))
+        .toList();
+  }
 }
+
+
